@@ -7,7 +7,6 @@ import mermaid from "mermaid";
 import { getCourseForDate, getWeekInfo } from "@/lib/courseData";
 import { X, ChevronLeft, ChevronRight, CheckCircle2, Circle } from "lucide-react";
 import toast from "react-hot-toast";
-import { toggleTaskDone } from "@/actions/auth.actions";
 
 interface CourseViewerProps {
     dateStr: string | null;
@@ -131,8 +130,8 @@ export default function CourseViewer({ dateStr, onClose, onDateChange, userId }:
                             if (!isRead) toast.success("Marked as read & learned!");
                         }}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${isRead
-                                ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                            ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                            : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                             }`}
                     >
                         {isRead ? <CheckCircle2 className="w-4 h-4" /> : <Circle className="w-4 h-4" />}

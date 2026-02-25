@@ -11,6 +11,7 @@ export async function createTask(formData: FormData) {
     const projectId = formData.get("projectId") as string | null;
     const userId = formData.get("userId") as string;
     const dateStr = formData.get("dateStr") as string;
+    const type = formData.get("type") as string || "learn";
     const redirectPath = formData.get("redirectPath") as string || "/planner";
 
     if (!text || text.trim() === "" || !userId || !dateStr) {
@@ -23,7 +24,7 @@ export async function createTask(formData: FormData) {
         projectId: projectId ? projectId : null,
         userId,
         dateStr,
-        type: "learn",
+        type,
     });
 
     revalidatePath(redirectPath);

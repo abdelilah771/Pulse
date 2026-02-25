@@ -6,7 +6,7 @@ import TaskTimer from "@/components/blocks/TaskTimer";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toggleTaskDone, createTask } from "@/actions/auth.actions";
+import { toggleTaskDone, createTask } from "@/actions/tasks.actions";
 
 interface PlannerClientProps {
     tasks: any[];
@@ -41,7 +41,14 @@ export default function PlannerClient({ tasks: initialTasks, userId, dateStr }: 
         setNewTaskText("");
         setIsAdding(false);
 
-        await createTask(optimisticTask.text, optimisticTask.type, optimisticTask.priority, dateStr, userId);
+        const formData = new FormData();
+        formData.append("text", optimisticTask.text);
+        formData.append("type", optimisticTask.type);
+        formData.append("priority", optimisticTask.priority);
+        formData.append("userId", userId);
+        formData.append("dateStr", dateStr);
+
+        await createTask(formData);
     }
 
     async function handleToggle(taskId: string, currentDone: boolean) {
@@ -55,7 +62,7 @@ export default function PlannerClient({ tasks: initialTasks, userId, dateStr }: 
         }
 
         // Server action
-        await toggleTaskDone(taskId, newDone);
+        await toggleTaskDone(taskId, userId, newDone);
     }
 
     return (
