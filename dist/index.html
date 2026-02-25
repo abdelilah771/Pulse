@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pulse — Planner + Tracker</title>
+  <meta name="description" content="A beautiful daily planner with mood tracking and infographic insights." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;700&display=swap"
+    rel="stylesheet" />
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
+  <script type="module" crossorigin src="/assets/index-j498hjop.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-I3jWVA9f.css">
+</head>
+
+<body>
+  <div id="app">
+    <!-- Top Navigation -->
+    <header id="top-nav">
+      <div class="nav-brand">
+        <h1 class="app-title">Pulse</h1>
+        <p class="app-subtitle" id="greeting"></p>
+      </div>
+      <nav class="nav-tabs">
+        <button class="nav-btn active" data-view="planner" id="nav-planner">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <span>Today</span>
+        </button>
+        <button class="nav-btn" data-view="insights" id="nav-insights">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          <span>Insights</span>
+        </button>
+        <button class="nav-btn" data-view="kpis" id="nav-kpis">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+          </svg>
+          <span>KPIs</span>
+        </button>
+      </nav>
+    </header>
+
+    <!-- View: Planner -->
+    <main id="view-planner" class="view active">
+      <!-- Date Navigation -->
+      <div class="date-nav">
+        <button id="btn-prev-day" class="icon-btn" aria-label="Previous day">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <div class="date-display">
+          <span id="date-label" class="date-label"></span>
+          <span id="date-relative" class="date-relative"></span>
+        </div>
+        <button id="btn-next-day" class="icon-btn" aria-label="Next day">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Work Clock (9 AM → 4 PM) -->
+      <div id="work-clock" class="work-clock glass-card"></div>
+
+      <!-- Task Timer Bar -->
+      <div id="timer-bar" class="timer-bar glass-card" style="display:none;"></div>
+
+      <!-- Two-Column Desktop Grid -->
+      <div class="planner-grid">
+        <!-- LEFT: Tasks -->
+        <div class="planner-col-tasks">
+          <!-- Progress Ring + Streak -->
+          <div class="progress-section">
+            <div class="progress-ring-wrapper">
+              <svg class="progress-ring" width="100" height="100" viewBox="0 0 100 100">
+                <circle class="progress-ring-bg" cx="50" cy="50" r="42" fill="none" stroke-width="6" />
+                <circle id="progress-ring-fill" class="progress-ring-fill" cx="50" cy="50" r="42" fill="none"
+                  stroke-width="6" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="263.9"
+                  transform="rotate(-90 50 50)" />
+              </svg>
+              <div class="progress-ring-text">
+                <span id="progress-percent" class="progress-percent">0%</span>
+              </div>
+            </div>
+            <div class="progress-info">
+              <div class="progress-label">Daily Progress</div>
+              <div class="progress-detail" id="progress-detail">0 of 0 tasks</div>
+              <div class="streak-badge" id="streak-badge">
+                <span class="streak-fire">🔥</span>
+                <span id="streak-count">0</span>
+                <span class="streak-label">day streak</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Task Input -->
+          <div class="task-input-area glass-card">
+            <div class="input-row">
+              <input type="text" id="task-input" placeholder="Add a new task..." autocomplete="off" />
+              <div class="priority-picker" id="priority-picker">
+                <button class="priority-dot low" data-priority="low" title="Low priority"
+                  aria-label="Low priority"></button>
+                <button class="priority-dot medium active" data-priority="medium" title="Medium priority"
+                  aria-label="Medium priority"></button>
+                <button class="priority-dot high" data-priority="high" title="High priority"
+                  aria-label="High priority"></button>
+              </div>
+              <button id="btn-add-task" class="btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Task List -->
+          <div id="task-list" class="task-list"></div>
+
+          <!-- Empty state -->
+          <div id="empty-tasks" class="empty-state" style="display:none;">
+            <div class="empty-icon">
+              <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                <rect x="12" y="8" width="40" height="48" rx="6" stroke="currentColor" stroke-width="2" opacity="0.3" />
+                <line x1="20" y1="22" x2="44" y2="22" stroke="currentColor" stroke-width="2" opacity="0.2"
+                  stroke-linecap="round" />
+                <line x1="20" y1="30" x2="38" y2="30" stroke="currentColor" stroke-width="2" opacity="0.15"
+                  stroke-linecap="round" />
+                <line x1="20" y1="38" x2="42" y2="38" stroke="currentColor" stroke-width="2" opacity="0.1"
+                  stroke-linecap="round" />
+                <circle cx="48" cy="48" r="12" fill="#6366f1" opacity="0.15" />
+                <line x1="44" y1="48" x2="52" y2="48" stroke="#6366f1" stroke-width="2" stroke-linecap="round" />
+                <line x1="48" y1="44" x2="48" y2="52" stroke="#6366f1" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </div>
+            <p class="empty-title">No tasks yet</p>
+            <p class="empty-subtitle">Add your first task to start tracking!</p>
+          </div>
+        </div>
+
+        <!-- RIGHT: Metrics -->
+        <div class="planner-col-metrics">
+          <div class="metrics-section">
+            <h2 class="section-title">How's your day?</h2>
+            <div class="metrics-grid">
+              <div class="metric-card glass-card" data-metric="mood">
+                <div class="metric-header">
+                  <span class="metric-icon" id="mood-emoji"></span>
+                  <span class="metric-name">Mood</span>
+                  <span class="metric-value" id="mood-value">5</span>
+                </div>
+                <input type="range" id="mood-slider" min="0" max="10" value="5" class="metric-slider mood-slider" />
+                <div class="metric-range-labels">
+                  <span>Low</span><span>Great</span>
+                </div>
+              </div>
+              <div class="metric-card glass-card" data-metric="coffee">
+                <div class="metric-header">
+                  <span class="metric-icon" id="coffee-emoji"></span>
+                  <span class="metric-name">Coffee</span>
+                  <span class="metric-value" id="coffee-value">2</span>
+                </div>
+                <input type="range" id="coffee-slider" min="0" max="5" value="2" class="metric-slider coffee-slider" />
+                <div class="metric-range-labels">
+                  <span>0 cups</span><span>5 cups</span>
+                </div>
+              </div>
+              <div class="metric-card glass-card" data-metric="energy">
+                <div class="metric-header">
+                  <span class="metric-icon" id="energy-emoji"></span>
+                  <span class="metric-name">Energy</span>
+                  <span class="metric-value" id="energy-value">5</span>
+                </div>
+                <input type="range" id="energy-slider" min="0" max="10" value="5" class="metric-slider energy-slider" />
+                <div class="metric-range-labels">
+                  <span>Drained</span><span>Charged</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- View: Insights Dashboard -->
+    <main id="view-insights" class="view">
+
+      <!-- Weekly Stats Summary -->
+      <section class="stats-summary glass-card">
+        <div class="stat-item">
+          <div class="stat-value" id="stat-tasks-done">0</div>
+          <div class="stat-label">Tasks Done</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-value" id="stat-avg-mood">–</div>
+          <div class="stat-label">Avg Mood</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-value" id="stat-best-day">–</div>
+          <div class="stat-label">Best Day</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-value streak-glow" id="stat-streak">0🔥</div>
+          <div class="stat-label">Streak</div>
+        </div>
+      </section>
+
+      <!-- Dashboard Grid -->
+      <div class="dashboard-grid">
+        <!-- North Star -->
+        <section class="north-star-section glass-card">
+          <h2 class="section-title">Your North Star</h2>
+          <p class="north-star-subtitle">Weekly consistency score</p>
+          <div class="north-star-container">
+            <svg id="north-star-svg" viewBox="0 0 200 200" width="200" height="200"></svg>
+            <div class="north-star-score" id="north-star-score">0%</div>
+          </div>
+        </section>
+
+        <!-- Overlay Graph -->
+        <section class="chart-section glass-card">
+          <div class="chart-header">
+            <h2 class="section-title">Tasks vs. Mood</h2>
+            <select id="chart-metric-select" class="metric-select">
+              <option value="mood">Mood</option>
+              <option value="coffee">Coffee</option>
+              <option value="energy">Energy</option>
+            </select>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="overlay-chart"></canvas>
+          </div>
+        </section>
+      </div>
+
+      <!-- Heatmap (full width) -->
+      <section class="heatmap-section glass-card">
+        <div class="chart-header">
+          <h2 class="section-title">Monthly Heatmap</h2>
+          <select id="heatmap-metric-select" class="metric-select">
+            <option value="mood">Mood</option>
+            <option value="coffee">Coffee</option>
+            <option value="energy">Energy</option>
+          </select>
+        </div>
+        <div class="heatmap-month-nav">
+          <button id="btn-heatmap-prev" class="icon-btn" aria-label="Previous month">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <span id="heatmap-month-label" class="heatmap-month-label"></span>
+          <button id="btn-heatmap-next" class="icon-btn" aria-label="Next month">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+        <div id="heatmap-grid" class="heatmap-grid"></div>
+        <div class="heatmap-legend">
+          <span>Low</span>
+          <div class="heatmap-legend-colors">
+            <div class="heatmap-swatch" style="background:var(--heatmap-0)"></div>
+            <div class="heatmap-swatch" style="background:var(--heatmap-1)"></div>
+            <div class="heatmap-swatch" style="background:var(--heatmap-2)"></div>
+            <div class="heatmap-swatch" style="background:var(--heatmap-3)"></div>
+            <div class="heatmap-swatch" style="background:var(--heatmap-4)"></div>
+          </div>
+          <span>High</span>
+        </div>
+      </section>
+
+      <!-- Export Button -->
+      <button id="btn-export" class="btn-export glass-card">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Export as Image
+      </button>
+    </main>
+
+    <!-- View: KPIs -->
+    <main id="view-kpis" class="view">
+      <h2 class="section-title kpi-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+        </svg>
+        Learning KPIs
+      </h2>
+      <div id="kpi-grid" class="kpi-grid"></div>
+    </main>
+  </div>
+
+</body>
+
+</html>

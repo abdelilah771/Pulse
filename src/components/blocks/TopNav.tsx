@@ -1,0 +1,87 @@
+import Link from "next/link";
+import { Search, Aperture, Bell } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
+import { db } from "@/db";
+import { users } from "@/db/schema";
+import { eq } from "drizzle-orm";
+import { logoutUser } from "@/actions/auth.actions";
+import { redirect } from "next/navigation";
+
+export default async function TopNav() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    let dbUser = null;
+    if (user) {
+        const result = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
+        dbUser = result[0];
+    }
+
+    return (
+        <header className="fixed top-0 left-0 right-0 z-40 px-6 py-4 flex items-center justify-between glass-panel border-b border-glass-border/50 h-16">
+            <div className="flex items-center gap-4">
+                <div className="size-8 text-primary flex items-center justify-center">
+                    <Aperture className="w-8 h-8" />
+                </div>
+                <h1 className="text-white text-lg font-bold tracking-tight">Personal Space</h1>
+            </div>
+
+            <div className="flex-1 max-w-md mx-8 hidden md:block">
+                <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                        <Search className="text-[20px]" />
+                    </div>
+                    <input
+                        className="block w-full p-2 pl-10 text-sm text-slate-100 bg-black/20 border border-white/5 rounded-full focus:ring-primary focus:border-primary placeholder-slate-500 transition-all focus:bg-black/40"
+                        placeholder="Search workspace, files, or tasks..."
+                        type="text"
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <span className="text-xs text-slate-500 border border-slate-700 rounded px-1.5 py-0.5">⌘K</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+                <button className="relative p-2 rounded-full hover:bg-white/5 text-slate-400 hover:text-white transition-colors">
+                    <Bell className="w-5 h-5" />
+                    <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-background-dark"></span>
+                </button>
+                <div className="h-8 w-[1px] bg-white/10 mx-1"></div>
+                {user ? (
+                    <div className="flex items-center gap-3 cursor-pointer hover:bg-white/5 p-1 pr-3 rounded-full transition-colors border border-transparent hover:border-white/5 group">
+                        <div
+                            className="size-8 rounded-full bg-cover bg-center ring-2 ring-white/10 bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs"
+                        >
+                            {dbUser?.name ? dbUser.name.charAt(0).toUpperCase() : "U"}
+                        </div>
+                        <span className="text-sm font-medium text-slate-300 hidden sm:block group-hover:text-white">
+                            {dbUser?.name || "Workspace"}
+                        </span>
+
+                        {/* Logout button revealed on hover or could be a dropdown */}
+                        <form
+                            action={async () => {
+                                "use server";
+                                await logoutUser();
+                                redirect("/login");
+                            }}
+                            className="hidden group-hover:block absolute top-[60px] right-6 glass-panel p-2 rounded-lg"
+                        >
+                            <button
+                                type="submit"
+                                className="text-sm font-medium text-red-500 hover:text-red-400 px-3 py-1.5 transition-colors"
+                            >
+                                Déconnexion
+                            </button>
+                        </form>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-2 text-sm font-medium text-slate-300">
+                        <Link href="/login" className="hover:text-white transition-colors">Connexion</Link>
+                    </div>
+                )}
+            </div>
+        </header>
+    );
+}
