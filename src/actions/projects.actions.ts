@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { projects, projectMembers, users } from "@/db/schema";
+import { projects, projectMembers, users, tasks, taskAssignees } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -178,4 +178,98 @@ export async function removeMember(formData: FormData) {
     );
 
     revalidatePath(redirectPath);
+}
+
+export async function getProjectSummary(projectId: string) {
+    try {
+        const project = await db.query.projects.findFirst({
+            where: eq(projects.id, projectId),
+        });
+
+        if (!project) return null;
+
+        const allTasks = await db.select().from(tasks).where(eq(tasks.projectId, projectId));
+        const completedTasks = allTasks.filter(t => t.done).length;
+        const totalTasks = allTasks.length;
+
+        const memberDetails = await db
+            .select({
+                id: users.id,
+                name: users.name,
+                avatarUrl: users.avatarUrl,
+                role: projectMembers.role
+            })
+            .from(projectMembers)
+            .innerJoin(users, eq(users.id, projectMembers.userId))
+            .where(eq(projectMembers.projectId, projectId));
+
+        return {
+            project,
+            stats: { totalTasks, completedTasks },
+            members: memberDetails
+        };
+
+    } catch (e) {
+        console.error("Erreur getProjectSummary:", e);
+        return null;
+    }
+}
+
+export async function addProjectTask(formData: FormData) {
+    const text = formData.get("text") as string;
+    const projectId = formData.get("projectId") as string;
+
+    if (!text || !text.trim() || !projectId) {
+        return { error: "Texte et ProjectID requis" };
+    }
+
+    try {
+        const { createClient } = await import("@/lib/supabase/server");
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) return { error: "Non authentifié" };
+
+        const today = new Date().toISOString().split('T')[0];
+
+        await db.insert(tasks).values({
+            text: text.trim(),
+            projectId,
+            userId: user.id,
+            dateStr: today,
+            timeSlot: "morning",
+            priority: "medium",
+            type: "learn",
+        });
+
+        revalidatePath(`/projects/${projectId}`);
+        return { success: true };
+    } catch (e: any) {
+        return { error: e.message || "Erreur lors de l'ajout de la tâche" };
+    }
+}
+
+export async function toggleProjectTask(formData: FormData) {
+    const taskId = formData.get("taskId") as string;
+    const isDone = formData.get("done") === "true";
+
+    if (!taskId) return { error: "TaskID requis" };
+
+    try {
+        const { createClient } = await import("@/lib/supabase/server");
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) return { error: "Non authentifié" };
+
+        await db.update(tasks)
+            .set({ done: isDone, updatedAt: new Date() })
+            .where(and(eq(tasks.id, taskId), eq(tasks.userId, user.id)));
+
+        // We don't have projectId mapped here easily unless we fetch it, but Next.js router handles optimistic UI 
+        // We'll revalidate the layout if needed, or rely on optimistic UI for now.
+        return { success: true };
+    } catch (e: any) {
+        return { error: e.message || "Erreur lors de la mise à jour" };
+    }
 }

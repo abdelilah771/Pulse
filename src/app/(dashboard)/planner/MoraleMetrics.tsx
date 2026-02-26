@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { updateDailyMetrics } from "@/actions/auth.actions";
+import { Smile, Zap } from "lucide-react";
 
 interface MoraleMetricsProps {
     userId: string;
@@ -33,7 +34,7 @@ export default function MoraleMetrics({ userId, dateStr, initialMood, initialEne
                 <div className="space-y-3">
                     <div className="flex justify-between text-sm font-medium">
                         <span className="text-slate-600 flex items-center gap-2">
-                            <span>🎭</span> Humeur
+                            <Smile className="w-4 h-4 text-indigo-500" /> Humeur
                         </span>
                         <span className="text-indigo-600 font-bold">{mood[0]}/10</span>
                     </div>
@@ -52,7 +53,7 @@ export default function MoraleMetrics({ userId, dateStr, initialMood, initialEne
                 <div className="space-y-3">
                     <div className="flex justify-between text-sm font-medium">
                         <span className="text-slate-600 flex items-center gap-2">
-                            <span>⚡</span> Énergie
+                            <Zap className="w-4 h-4 text-amber-500" /> Énergie
                         </span>
                         <span className="text-amber-500 font-bold">{energy[0]}/10</span>
                     </div>

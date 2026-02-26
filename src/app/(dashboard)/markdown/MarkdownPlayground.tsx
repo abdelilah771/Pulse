@@ -5,6 +5,7 @@ import { marked } from "marked";
 import mermaid from "mermaid";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Edit3, Eye } from "lucide-react";
 
 const DEFAULT_MARKDOWN = `# Markdown & Mermaid Viewer
 Bienvenue dans le parseur interactif en temps réel !
@@ -71,7 +72,7 @@ export default function MarkdownPlayground() {
             <Card className="flex flex-col border-slate-200 shadow-sm rounded-2xl h-full">
                 <CardHeader className="border-b border-slate-100 pb-4">
                     <CardTitle className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                        <span>✏️</span> Éditeur Markdown
+                        <Edit3 className="w-4 h-4 text-slate-500" /> Éditeur Markdown
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="flex-1 p-0 overflow-hidden">
@@ -88,7 +89,7 @@ export default function MarkdownPlayground() {
             <Card className="flex flex-col border-slate-200 shadow-sm rounded-2xl h-full">
                 <CardHeader className="border-b border-slate-100 pb-4">
                     <CardTitle className="text-sm font-bold text-indigo-700 flex items-center gap-2">
-                        <span>👁️</span> Aperçu en direct
+                        <Eye className="w-4 h-4 text-indigo-500" /> Aperçu en direct
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="flex-1 p-6 overflow-y-auto" ref={containerRef}>

@@ -102,12 +102,24 @@ export default function ProjectSheet({
                 className="!w-full sm:!max-w-md border-l border-black/10 dark:border-white/10 bg-white/95 dark:bg-[#101922]/95 backdrop-blur-2xl text-slate-900 dark:text-white overflow-y-auto"
             >
                 <SheetHeader className="mb-6">
-                    <SheetTitle className="text-xl font-bold text-slate-900 dark:text-white">
-                        {mode === "create" ? "Nouveau projet" : "Paramètres du projet"}
-                    </SheetTitle>
-                    <SheetDescription className="text-slate-500 dark:text-slate-400 text-sm">
-                        {mode === "create" ? "Configurez les informations de base de votre projet." : "Gérez les informations et les accès du projet."}
-                    </SheetDescription>
+                    <div className="flex justify-between items-start pr-8">
+                        <div>
+                            <SheetTitle className="text-xl font-bold text-slate-900 dark:text-white">
+                                {mode === "create" ? "Nouveau projet" : "Paramètres du projet"}
+                            </SheetTitle>
+                            <SheetDescription className="text-slate-500 dark:text-slate-400 text-sm">
+                                {mode === "create" ? "Configurez les informations de base de votre projet." : "Gérez les informations et les accès du projet."}
+                            </SheetDescription>
+                        </div>
+                        {mode === "edit" && project?.id && (
+                            <a
+                                href={`/projects/${project.id}`}
+                                className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold text-xs rounded-lg flex items-center gap-2 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors whitespace-nowrap"
+                            >
+                                Ouvrir le Workspace
+                            </a>
+                        )}
+                    </div>
                 </SheetHeader>
 
                 <div className="space-y-8">

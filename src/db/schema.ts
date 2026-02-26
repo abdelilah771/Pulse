@@ -83,3 +83,14 @@ export const projectMembers = pgTable("project_members", {
     uniqueIndex("project_member_unique_idx").on(table.projectId, table.userId),
     index("project_member_user_idx").on(table.userId),
 ]);
+
+export const projectMessages = pgTable("project_messages", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: 'cascade' }),
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+    index("project_message_project_idx").on(table.projectId),
+    index("project_message_created_idx").on(table.createdAt),
+]);

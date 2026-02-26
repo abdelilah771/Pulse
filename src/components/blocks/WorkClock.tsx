@@ -36,7 +36,7 @@ export default function WorkClock() {
     let barColor = "from-indigo-500 to-purple-500";
 
     if (isFinished) {
-        statusText = "Journée terminée ! Bien joué 🎉";
+        statusText = "Journée terminée ! Bien joué";
         barColor = "from-emerald-400 to-teal-500";
     } else if (!isActive && currentHour < WORK_START) {
         statusText = "Bienvenue ! La journée n'a pas encore commencé.";

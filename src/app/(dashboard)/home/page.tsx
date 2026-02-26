@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { db } from "@/db";
 import { tasks, users, notes, projects } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
@@ -179,9 +180,12 @@ export default async function HomePage() {
                                                     {format(new Date(latestProject.createdAt), "d MMM yyyy", { locale: fr })}
                                                 </p>
                                             </div>
-                                            <button className="px-5 py-2 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-slate-700 dark:text-white rounded-lg text-sm font-medium transition-colors border border-black/5 dark:border-white/5">
+                                            <Link
+                                                href={`/projects/${latestProject.id}`}
+                                                className="px-5 py-2 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-slate-700 dark:text-white rounded-lg text-sm font-medium transition-colors border border-black/5 dark:border-white/5"
+                                            >
                                                 Ouvrir le Board
-                                            </button>
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>

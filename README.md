@@ -1,8 +1,8 @@
-# Pulse ⚡
+# Pulse
 
 A modern, high-performance productivity dashboard and planner web application built to help you stay focused. Pulse brings together task management, project tracking, rapid notes, and KPI insights—all wrapped in a stunning, interactive Glassmorphism UI.
 
-## Features ✨
+## Features
 
 - **Daily Kanban Planner**: Organize your day into Morning, Afternoon, and Evening blocks.
 - **Project & Task Management**: Full CRUD capabilities mapped seamlessly in your dashboard. Colored tags to visually differentiate your ventures.
@@ -12,16 +12,17 @@ A modern, high-performance productivity dashboard and planner web application bu
 - **Type-Safe ORM**: Fully typed database interactions using Drizzle ORM.
 - **Automated CI/CD**: Integrated with GitHub Actions and SonarQube for continuous code quality analysis.
 
-## Tech Stack 🛠️
+## Tech Stack
 
 - **Framework**: [Next.js](https://nextjs.org/) (App Router, Server Actions)
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
 - **Database**: PostgreSQL via [Supabase](https://supabase.com/)
 - **ORM**: [Drizzle ORM](https://orm.drizzle.team/)
+- **Testing**: [Vitest](https://vitest.dev/) & [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
 - **Components**: Radix UI / Lucide Icons
 - **Infrastructure CI/CD**: GitHub Actions + SonarCloud
 
-## Getting Started 🚀
+## Getting Started
 
 ### 1. Clone the repository
 ```bash
@@ -58,10 +59,20 @@ npx drizzle-kit push
 npm run dev
 ```
 
+### 6. Run Tests
+```bash
+# Run all tests
+npm run test
+
+# Run tests with coverage report
+npm run test:coverage
+```
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## CI/CD & Code Quality 🛡️
+## CI/CD & Code Quality
 
-This repository uses GitHub Actions to run CI checks on every push to the `main` and `dev` branches. 
-- It performs a Node.js build pipeline (`npm ci`, `npm audit`, `npm run build`).
-- It integrates with **SonarQube** to scan for code smells, bugs, and security vulnerabilities via the `sonar-project.properties` configuration.
+This repository uses GitHub Actions and Jenkins to run CI checks on every push. 
+- It performs a Node.js build pipeline (`npm ci`, `npm run build`).
+- It runs automated tests with coverage reporting (`npm run test:coverage`).
+- It integrates with **SonarQube** to scan for code smells, bugs, security vulnerabilities, and code coverage requirements.

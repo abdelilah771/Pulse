@@ -89,3 +89,103 @@ export async function updateDailyMetrics(userId: string, dateStr: string, mood: 
     });
     return { success: true };
 }
+
+// --- PROFILE & SECURITY ACTIONS ---
+
+export async function updateProfile(formData: FormData) {
+    const supabase = await createClient();
+    const name = formData.get("name") as string;
+    const avatarUrl = formData.get("avatarUrl") as string | null;
+
+    if (!name) return { error: "Le nom est requis." };
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: "Non authentifié." };
+
+    // Update Supabase Auth metadata
+    const { error: authError } = await supabase.auth.updateUser({
+        data: { name, avatar_url: avatarUrl }
+    });
+
+    if (authError) return { error: authError.message };
+
+    // Update Public Users Table
+    const updateData: any = { name, updatedAt: new Date() };
+    if (avatarUrl !== null) updateData.avatarUrl = avatarUrl; // Allow empty string to clear
+
+    await db.update(users).set(updateData).where(eq(users.id, user.id));
+
+    return { success: true };
+}
+
+export async function updatePassword(formData: FormData) {
+    const supabase = await createClient();
+    const password = formData.get("password") as string;
+
+    if (!password || password.length < 6) return { error: "Le mot de passe doit faire au moins 6 caractères." };
+
+    const { error } = await supabase.auth.updateUser({ password });
+
+    if (error) return { error: error.message };
+    return { success: true };
+}
+
+// --- TOTP MFA ACTIONS ---
+
+export async function getMfaStatus() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return { enabled: false, factors: [] };
+
+    // Find verified TOTP factors
+    const totpFactors = user.factors?.filter(f => f.factor_type === 'totp' && f.status === 'verified') || [];
+
+    return {
+        enabled: totpFactors.length > 0,
+        factors: totpFactors
+    };
+}
+
+export async function enrollMfa() {
+    const supabase = await createClient();
+
+    // 1. Enroll user in TOTP
+    const { data, error } = await supabase.auth.mfa.enroll({
+        factorType: 'totp'
+    });
+
+    if (error) return { error: error.message };
+
+    // 2. We return the QR code data for the frontend to render, plus the factorId
+    const qrCodeUrl = data.totp.qr_code; // SVG or URL format string depending on env, but Supabase usually returns the otpauth:// URI
+    return {
+        factorId: data.id,
+        qrCodeUri: data.totp.uri,
+        secret: data.totp.secret
+    };
+}
+
+export async function verifyMfaEnrollment(factorId: string, code: string) {
+    const supabase = await createClient();
+
+    const challenge = await supabase.auth.mfa.challenge({ factorId });
+    if (challenge.error) return { error: challenge.error.message };
+
+    const verify = await supabase.auth.mfa.verify({
+        factorId,
+        challengeId: challenge.data.id,
+        code
+    });
+
+    if (verify.error) return { error: verify.error.message };
+
+    return { success: true };
+}
+
+export async function unenrollMfa(factorId: string) {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.mfa.unenroll({ factorId });
+    if (error) return { error: error.message };
+    return { success: true };
+}

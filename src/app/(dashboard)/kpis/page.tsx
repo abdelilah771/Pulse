@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { tasks } from "@/db/schema";
 import { eq, inArray, and } from "drizzle-orm";
 import { format, subDays } from "date-fns";
+import { Flame, BookOpen, Target, Plus } from "lucide-react";
 
 export default async function KpiPage() {
     const supabase = await createClient();
@@ -55,19 +56,25 @@ export default async function KpiPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="p-6 rounded-2xl bg-white border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
-                        <span className="text-3xl mb-2">🔥</span>
+                        <div className="p-2 bg-orange-500/10 rounded-lg text-orange-500 mb-2">
+                            <Flame className="w-6 h-6" />
+                        </div>
                         <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-1">Série Actuelle</h4>
                         <p className="text-4xl font-extrabold text-slate-800">
                             {completionByDateStr[dates[dates.length - 1]] > 50 ? "1 Jours" : "0 Jours"}
                         </p>
                     </div>
                     <div className="p-6 rounded-2xl bg-white border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
-                        <span className="text-3xl mb-2">📚</span>
+                        <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500 mb-2">
+                            <BookOpen className="w-6 h-6" />
+                        </div>
                         <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-1">Leçons Lues</h4>
                         <p className="text-4xl font-extrabold text-slate-800">0</p>
                     </div>
                     <div className="p-6 rounded-2xl bg-white border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
-                        <span className="text-3xl mb-2">🎯</span>
+                        <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-500 mb-2">
+                            <Target className="w-6 h-6" />
+                        </div>
                         <h4 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-1">Complétion Semaine</h4>
                         <p className="text-4xl font-extrabold text-indigo-600">
                             {Math.round(Object.values(completionByDateStr).reduce((a, b) => a + b, 0) / 7)}%

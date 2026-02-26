@@ -39,7 +39,7 @@ export default function TaskTimer({ taskId, taskName, onComplete }: TaskTimerPro
     }, [isActive, timeLeft]);
 
     function handleExpiration() {
-        toast.success(`Temps écoulé pour la tâche : ${taskName} 🎉`, { duration: 5000 });
+        toast.success(`Temps écoulé pour la tâche : ${taskName}`, { duration: 5000 });
         onComplete();
     }
 
