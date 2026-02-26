@@ -24,6 +24,8 @@ export const tasks = pgTable("tasks", {
     done: boolean("done").default(false).notNull(),
     priority: text("priority").default("medium").notNull(), // high, medium, low
     type: text("type").default("learn").notNull(),
+    description: text("description"),
+    timeSlot: text("time_slot").default("morning").notNull(), // morning, afternoon, evening
     dateStr: text("date_str").notNull(),
     projectId: uuid("project_id").references(() => projects.id, { onDelete: 'set null' }),
     userId: uuid("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),

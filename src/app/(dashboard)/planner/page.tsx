@@ -44,10 +44,10 @@ export default async function PlannerPage() {
 
     const progressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
-    // Split tasks for columns (Simulation since we don't have time slots in DB yet)
-    const matinTasks = tasksList.filter((_, i) => i % 3 === 0);
-    const apresMidiTasks = tasksList.filter((_, i) => i % 3 === 1);
-    const soireeTasks = tasksList.filter((_, i) => i % 3 === 2);
+    // Filter tasks by their actual timeSlot field
+    const matinTasks = tasksList.filter((t: any) => t.timeSlot === "morning");
+    const apresMidiTasks = tasksList.filter((t: any) => t.timeSlot === "afternoon");
+    const soireeTasks = tasksList.filter((t: any) => t.timeSlot === "evening");
 
     return (
         <div className="flex-1 overflow-x-hidden p-6 lg:p-10 scroll-smooth relative z-10 w-full mb-20 lg:mb-0">

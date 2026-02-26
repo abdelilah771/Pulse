@@ -7,11 +7,13 @@ import { revalidatePath } from "next/cache";
 
 export async function createTask(formData: FormData) {
     const text = formData.get("text") as string;
-    const priority = formData.get("priority") as string || "medium"; // high, medium, low
+    const description = formData.get("description") as string | null;
+    const priority = formData.get("priority") as string || "medium";
     const projectId = formData.get("projectId") as string | null;
     const userId = formData.get("userId") as string;
     const dateStr = formData.get("dateStr") as string;
     const type = formData.get("type") as string || "learn";
+    const timeSlot = formData.get("timeSlot") as string || "morning";
     const redirectPath = formData.get("redirectPath") as string || "/planner";
 
     if (!text || text.trim() === "" || !userId || !dateStr) {
@@ -20,7 +22,9 @@ export async function createTask(formData: FormData) {
 
     await db.insert(tasks).values({
         text: text.trim(),
+        description: description?.trim() || null,
         priority,
+        timeSlot,
         projectId: projectId ? projectId : null,
         userId,
         dateStr,

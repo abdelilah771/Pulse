@@ -1,10 +1,22 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Check, MoreHorizontal } from "lucide-react";
+import { CheckCircle, MoreHorizontal } from "lucide-react";
 import { toggleTaskDone } from "@/actions/tasks.actions";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+
+const priorityConfig: Record<string, { label: string; color: string; border: string }> = {
+    high: { label: "Focus Profond", color: "text-blue-300 bg-blue-500/20 border-blue-500/20", border: "border-blue-500/30" },
+    medium: { label: "Standard", color: "text-emerald-300 bg-emerald-500/20 border-emerald-500/20", border: "border-emerald-500/30" },
+    low: { label: "Optionnel", color: "text-slate-300 bg-white/10 border-white/10", border: "border-white/10" },
+};
+
+const accentColors: Record<string, string> = {
+    high: "bg-blue-500",
+    medium: "bg-emerald-500",
+    low: "bg-slate-500",
+};
 
 export default function TaskItem({ task }: { task: any }) {
     const [isDone, setIsDone] = useState(task.done);
@@ -13,51 +25,70 @@ export default function TaskItem({ task }: { task: any }) {
 
     const handleToggle = () => {
         const newDoneState = !isDone;
-        setIsDone(newDoneState); // Optimistic UI update
+        setIsDone(newDoneState);
 
         startTransition(async () => {
             try {
                 await toggleTaskDone(task.id, task.userId, newDoneState);
-                router.refresh(); // Refresh RSC data in the background
+                router.refresh();
             } catch (e) {
-                // Revert if failed
                 setIsDone(!newDoneState);
                 toast.error("Erreur de synchronisation.");
             }
         });
     };
 
+    const priority = priorityConfig[task.priority] || priorityConfig.medium;
+    const accent = accentColors[task.priority] || accentColors.medium;
+
     return (
-        <label className="glass-card p-4 rounded-xl flex items-start gap-4 cursor-pointer hover:bg-white/5 transition-colors group">
-            <div className="relative flex items-center mt-1">
-                <input
-                    type="checkbox"
-                    checked={isDone}
-                    onChange={handleToggle}
-                    disabled={isPending}
-                    className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-slate-600 bg-slate-800/50 checked:border-primary checked:bg-primary transition-all focus:ring-0 focus:ring-offset-0 disabled:opacity-50"
-                />
-                <Check className="absolute w-3.5 h-3.5 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white pointer-events-none opacity-0 peer-checked:opacity-100" />
-            </div>
+        <div className={`glass-card p-5 rounded-3xl relative overflow-hidden group transition-all ${isDone ? "opacity-50" : ""} ${priority.border}`}>
+            {/* Left accent bar */}
+            <div className={`absolute left-0 top-0 bottom-0 w-1 ${accent}`}></div>
 
-            <div className="flex-1 opacity-100 peer-checked:opacity-60 transition-opacity">
-                <p className={`font-medium transition-colors ${isDone
-                    ? 'line-through text-slate-500'
-                    : 'text-slate-200 peer-checked:line-through peer-checked:text-slate-500 group-hover:text-white'
-                    }`}>
-                    {task.text}
-                </p>
-                <p className="text-slate-500 text-sm mt-1">{task.type && `${task.type} • `}{task.priority}</p>
-            </div>
-
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                    type="button"
-                    className="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-white transition-colors"
-                >
-                    <MoreHorizontal className="w-5 h-5" />
+            {/* Header: badge + menu */}
+            <div className="flex justify-between items-start mb-3">
+                <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${priority.color}`}>
+                    {priority.label}
+                </span>
+                <button className="text-slate-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100">
+                    <MoreHorizontal className="w-4 h-4" />
                 </button>
             </div>
-        </label>
+
+            {/* Title */}
+            <h4 className={`text-lg font-bold mb-1 transition-colors ${isDone ? "line-through text-slate-500" : "text-white"}`}>
+                {task.text}
+            </h4>
+
+            {/* Description */}
+            {task.description && (
+                <p className="text-sm text-slate-400 leading-relaxed mb-4">
+                    {task.description}
+                </p>
+            )}
+            {!task.description && <div className="mb-4"></div>}
+
+            {/* Footer: avatars + check button */}
+            <div className="flex justify-between items-end">
+                <div className="flex -space-x-2">
+                    <div className="w-7 h-7 rounded-full border-2 border-[#1e293b] bg-indigo-500 flex items-center justify-center text-[10px] font-bold text-white">
+                        {task.type?.charAt(0)?.toUpperCase() || "T"}
+                    </div>
+                </div>
+                <button
+                    onClick={handleToggle}
+                    disabled={isPending}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center border transition-all
+                        ${isDone
+                            ? "bg-primary border-primary text-white shadow-lg shadow-primary/30"
+                            : "bg-white/5 hover:bg-white/10 border-white/10 text-slate-400 hover:text-white"
+                        }
+                        disabled:opacity-50`}
+                >
+                    <CheckCircle className="w-4 h-4" />
+                </button>
+            </div>
+        </div>
     );
 }

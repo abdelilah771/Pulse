@@ -23,7 +23,6 @@ export default function CreateTaskModal({ userId, projects }: { userId: string, 
         }
     };
 
-    // Default to today for the date picker
     const todayStr = new Date().toISOString().split('T')[0];
 
     return (
@@ -45,6 +44,7 @@ export default function CreateTaskModal({ userId, projects }: { userId: string, 
                     <input type="hidden" name="userId" value={userId} />
                     <input type="hidden" name="redirectPath" value="/planner" />
 
+                    {/* Task Title */}
                     <div>
                         <label className="block text-sm font-medium text-slate-300 mb-1.5">Que devez-vous faire ? *</label>
                         <input
@@ -52,10 +52,50 @@ export default function CreateTaskModal({ userId, projects }: { userId: string, 
                             required
                             type="text"
                             className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                            placeholder="ex: Finaliser la présentation Q3"
+                            placeholder="ex: Revue de projet Q3"
                         />
                     </div>
 
+                    {/* Description */}
+                    <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-1.5">Description (Optionnel)</label>
+                        <textarea
+                            name="description"
+                            rows={2}
+                            className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
+                            placeholder="ex: Analyser les métriques de performance..."
+                        />
+                    </div>
+
+                    {/* Time Slot - visual pills */}
+                    <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-2">Créneau horaire *</label>
+                        <div className="grid grid-cols-3 gap-3">
+                            <label className="cursor-pointer">
+                                <input type="radio" name="timeSlot" value="morning" defaultChecked className="peer hidden" />
+                                <div className="text-center py-3 rounded-xl border border-white/10 bg-black/20 peer-checked:border-amber-400 peer-checked:bg-amber-500/10 transition-all">
+                                    <span className="text-lg">🌅</span>
+                                    <p className="text-xs font-medium text-slate-300 peer-checked:text-amber-300 mt-1">Matin</p>
+                                </div>
+                            </label>
+                            <label className="cursor-pointer">
+                                <input type="radio" name="timeSlot" value="afternoon" className="peer hidden" />
+                                <div className="text-center py-3 rounded-xl border border-white/10 bg-black/20 peer-checked:border-orange-400 peer-checked:bg-orange-500/10 transition-all">
+                                    <span className="text-lg">☀️</span>
+                                    <p className="text-xs font-medium text-slate-300 peer-checked:text-orange-300 mt-1">Après-midi</p>
+                                </div>
+                            </label>
+                            <label className="cursor-pointer">
+                                <input type="radio" name="timeSlot" value="evening" className="peer hidden" />
+                                <div className="text-center py-3 rounded-xl border border-white/10 bg-black/20 peer-checked:border-indigo-400 peer-checked:bg-indigo-500/10 transition-all">
+                                    <span className="text-lg">🌙</span>
+                                    <p className="text-xs font-medium text-slate-300 peer-checked:text-indigo-300 mt-1">Soirée</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* Date + Priority row */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-slate-300 mb-1.5">Date prévue *</label>
@@ -81,6 +121,7 @@ export default function CreateTaskModal({ userId, projects }: { userId: string, 
                         </div>
                     </div>
 
+                    {/* Project */}
                     <div>
                         <label className="block text-sm font-medium text-slate-300 mb-1.5">Associer à un Projet (Optionnel)</label>
                         <select
@@ -94,6 +135,7 @@ export default function CreateTaskModal({ userId, projects }: { userId: string, 
                         </select>
                     </div>
 
+                    {/* Actions */}
                     <div className="pt-4 flex items-center justify-end gap-3 border-t border-white/5">
                         <button
                             type="button"
