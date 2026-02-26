@@ -144,40 +144,62 @@ export default async function HomePage() {
                 </div>
 
                 {/* Active Project Banner */}
-                <div className="glass-card rounded-2xl p-1 overflow-hidden">
-                    <div className="bg-slate-100/80 dark:bg-[#192633]/50 rounded-xl flex flex-col md:flex-row overflow-hidden relative">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-primary/5 pointer-events-none"></div>
-                        <div
-                            className="w-full md:w-1/3 h-48 md:h-auto bg-cover bg-center relative"
-                            style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop")' }}
-                        >
-                            <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black/80 to-transparent"></div>
-                            <div className="absolute bottom-4 left-4">
-                                <span className="bg-primary text-white text-xs font-bold px-2 py-1 rounded mb-2 inline-block">Priorité Haute</span>
-                            </div>
-                        </div>
-                        <div className="p-6 flex flex-col justify-center flex-1 relative z-10">
-                            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Lancement du Projet Alpha</h3>
-                            <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 max-w-lg">Finaliser les ressources marketing et coordonner avec l'équipe de développement pour le prochain cycle de sortie.</p>
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-auto gap-4">
-                                <div className="flex -space-x-2">
-                                    <div className="w-8 h-8 rounded-full border-2 border-white dark:border-[#192633] bg-indigo-500 flex items-center justify-center text-xs font-bold text-white">AM</div>
-                                    <div className="w-8 h-8 rounded-full border-2 border-white dark:border-[#192633] bg-emerald-500 flex items-center justify-center text-xs font-bold text-white">KL</div>
-                                    <div className="w-8 h-8 rounded-full border-2 border-white dark:border-[#192633] bg-slate-500 dark:bg-slate-700 flex items-center justify-center text-xs text-white font-medium">+3</div>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <div className="text-right hidden sm:block">
-                                        <p className="text-xs text-slate-500 dark:text-slate-400">Deadline</p>
-                                        <p className="text-sm font-medium text-slate-900 dark:text-white">Demain, 17:00</p>
+                {projectsList.length > 0 ? (() => {
+                    const latestProject = projectsList[projectsList.length - 1];
+                    const gradientMap: Record<string, string> = {
+                        emerald: "from-emerald-600 via-emerald-500 to-teal-400",
+                        blue: "from-blue-600 via-blue-500 to-cyan-400",
+                        purple: "from-purple-600 via-violet-500 to-fuchsia-400",
+                        orange: "from-orange-600 via-orange-500 to-amber-400",
+                        rose: "from-rose-600 via-pink-500 to-rose-400",
+                    };
+                    const gradient = gradientMap[latestProject.color] || gradientMap.blue;
+
+                    return (
+                        <div className="glass-card rounded-2xl p-1 overflow-hidden">
+                            <div className="bg-slate-50 dark:bg-[#192633]/50 rounded-xl flex flex-col md:flex-row overflow-hidden relative">
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-primary/5 pointer-events-none"></div>
+                                {/* Gradient visual based on project color */}
+                                <div className={`w-full md:w-1/3 h-40 md:h-auto bg-gradient-to-br ${gradient} relative flex items-center justify-center`}>
+                                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.2),transparent_70%)]"></div>
+                                    <div className="absolute bottom-4 left-4">
+                                        <span className="bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full border border-white/20">
+                                            Projet Actif
+                                        </span>
                                     </div>
-                                    <button className="px-5 py-2 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-slate-700 dark:text-white rounded-lg text-sm font-medium transition-colors border border-black/5 dark:border-white/5">
-                                        Ouvrir le Board
-                                    </button>
+                                </div>
+                                <div className="p-6 flex flex-col justify-center flex-1 relative z-10">
+                                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{latestProject.name}</h3>
+                                    <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 max-w-lg">
+                                        {latestProject.description || "Aucune description pour ce projet."}
+                                    </p>
+                                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-auto gap-4">
+                                        <div className="flex -space-x-2">
+                                            <div className="w-8 h-8 rounded-full border-2 border-white dark:border-[#192633] bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white">
+                                                {dbUser?.name?.charAt(0)?.toUpperCase() || "U"}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <div className="text-right hidden sm:block">
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">Créé le</p>
+                                                <p className="text-sm font-medium text-slate-900 dark:text-white">
+                                                    {format(new Date(latestProject.createdAt), "d MMM yyyy", { locale: fr })}
+                                                </p>
+                                            </div>
+                                            <button className="px-5 py-2 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-slate-700 dark:text-white rounded-lg text-sm font-medium transition-colors border border-black/5 dark:border-white/5">
+                                                Ouvrir le Board
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    );
+                })() : (
+                    <div className="glass-card rounded-2xl p-8 text-center border-dashed border border-black/5 dark:border-white/5">
+                        <p className="text-slate-400 dark:text-slate-500 text-sm">Aucun projet pour l'instant. Créez-en un !</p>
                     </div>
-                </div>
+                )}
 
                 {/* Tasks Grid */}
                 <div>
