@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ "main", "dev" ]
 
+permissions:
+  contents: write  # Allow the workflow to push to branches
+
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
@@ -14,7 +17,8 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
@@ -30,12 +34,11 @@ jobs:
 
     - name: Linting
       run: npm run lint
-      continue-on-error: true # Don't block build immediately for warnings
+      continue-on-error: true
 
     - name: Build Next.js app
       run: npm run build
       env:
-        # Mock env vars needed for build process (if any depend on build-time envs)
         NEXT_PUBLIC_SUPABASE_URL: "https://mock.supabase.co"
         NEXT_PUBLIC_SUPABASE_ANON_KEY: "mock"
         DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/postgres"
@@ -45,3 +48,15 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    # Auto-merge dev → main when all steps above pass
+    - name: Auto Merge dev → main
+      if: github.ref == 'refs/heads/dev' && success()
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git fetch origin main
+        git checkout main
+        git merge origin/dev --no-edit
+        git push origin main
+        echo "✅ dev merged into main automatically"
