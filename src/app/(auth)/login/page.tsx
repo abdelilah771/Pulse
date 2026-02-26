@@ -44,7 +44,7 @@ export default function LoginPage() {
             setLoading(false);
         } else {
             toast.success("Connexion réussie !");
-            router.push("/planner");
+            router.push("/home");
             router.refresh();
         }
     }
