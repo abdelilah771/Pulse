@@ -58,3 +58,42 @@ export async function deleteTask(formData: FormData) {
     await db.delete(tasks).where(and(eq(tasks.id, id), eq(tasks.userId, userId)));
     revalidatePath(redirectPath);
 }
+
+export async function updateTask(formData: FormData) {
+    const id = formData.get("id") as string;
+    const text = formData.get("text") as string;
+    const description = formData.get("description") as string | null;
+    const priority = formData.get("priority") as string || "medium";
+    const timeSlot = formData.get("timeSlot") as string || "morning";
+    const projectId = formData.get("projectId") as string | null;
+    const userId = formData.get("userId") as string;
+    const dateStr = formData.get("dateStr") as string;
+    const redirectPath = formData.get("redirectPath") as string || "/planner";
+
+    if (!id || !text || text.trim() === "" || !userId) {
+        throw new Error("ID, Texte et UserID sont requis");
+    }
+
+    await db.update(tasks)
+        .set({
+            text: text.trim(),
+            description: description?.trim() || null,
+            priority,
+            timeSlot,
+            projectId: projectId ? projectId : null,
+            dateStr,
+            updatedAt: new Date(),
+        })
+        .where(and(eq(tasks.id, id), eq(tasks.userId, userId)));
+
+    revalidatePath(redirectPath);
+}
+
+export async function deleteTaskById(taskId: string, userId: string, redirectPath: string = "/planner") {
+    if (!taskId || !userId) {
+        throw new Error("Task ID and UserID are required");
+    }
+
+    await db.delete(tasks).where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)));
+    revalidatePath(redirectPath);
+}

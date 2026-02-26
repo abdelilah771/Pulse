@@ -117,7 +117,7 @@ export default async function PlannerPage() {
 
                     {/* Map real tasks */}
                     {matinTasks.map((task: any) => (
-                        <TaskItem key={task.id} task={task} creator={creatorInfo} />
+                        <TaskItem key={task.id} task={task} creator={creatorInfo} projects={projectsList} />
                     ))}
 
                     {/* Static visual representation of the complex card from the design */}
@@ -173,7 +173,7 @@ export default async function PlannerPage() {
 
                     {/* Map real tasks */}
                     {apresMidiTasks.map((task: any) => (
-                        <TaskItem key={task.id} task={task} creator={creatorInfo} />
+                        <TaskItem key={task.id} task={task} creator={creatorInfo} projects={projectsList} />
                     ))}
                 </div>
 
@@ -190,7 +190,7 @@ export default async function PlannerPage() {
 
                     {/* Map real tasks */}
                     {soireeTasks.map((task: any) => (
-                        <TaskItem key={task.id} task={task} creator={creatorInfo} />
+                        <TaskItem key={task.id} task={task} creator={creatorInfo} projects={projectsList} />
                     ))}
 
                     {/* Intelligent Suggestion (Absolute at bottom maybe, or just in flow) */}
