@@ -2,11 +2,9 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { tasks, users, notes, projects } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
-import { format } from "date-fns";
+import { eq, and, lt, ne } from "drizzle-orm";
+import { format, subDays } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Filter, Plus, CheckCircle, MoreHorizontal } from "lucide-react";
-import { createNote } from "@/actions/notes.actions";
 import TaskItem from "@/components/blocks/TaskItem";
 import CreateTaskModal from "@/components/blocks/CreateTaskModal";
 
@@ -19,17 +17,31 @@ export default async function PlannerPage() {
     }
 
     const today = format(new Date(), "yyyy-MM-dd");
+    const yesterday = format(subDays(new Date(), 1), "yyyy-MM-dd");
 
+    // Fetch today's tasks
     const tasksList = await db.query.tasks.findMany({
         where: and(eq(tasks.userId, user.id), eq(tasks.dateStr, today)),
         orderBy: (tasks, { asc }) => [asc(tasks.createdAt)],
     });
 
+    // Fetch yesterday's incomplete tasks for suggestions
+    const yesterdayIncompleteTasks = await db.query.tasks.findMany({
+        where: and(
+            eq(tasks.userId, user.id),
+            eq(tasks.dateStr, yesterday),
+            eq(tasks.done, false)
+        ),
+        orderBy: (tasks, { asc }) => [asc(tasks.createdAt)],
+    });
+
+    // Fetch today's notes
     const notesList = await db.query.notes.findMany({
         where: and(eq(notes.userId, user.id), eq(notes.dateStr, today)),
         orderBy: (notes, { desc }) => [desc(notes.createdAt)],
     });
 
+    // Fetch projects
     const projectsList = await db.query.projects.findMany({
         where: eq(projects.userId, user.id),
         orderBy: (projects, { asc }) => [asc(projects.createdAt)],
@@ -41,7 +53,6 @@ export default async function PlannerPage() {
     const totalTasks = tasksList.length;
     const completedTasks = tasksList.filter((t: any) => t.done).length;
     const inProgress = totalTasks - completedTasks;
-
     const progressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
     // Filter tasks by their actual timeSlot field
@@ -55,6 +66,10 @@ export default async function PlannerPage() {
         avatarUrl: (dbUser?.avatarUrl || user.user_metadata?.avatar_url || null) as string | null,
     };
 
+    // Greeting based on time of day
+    const hour = new Date().getHours();
+    const greeting = hour < 12 ? "Bonjour" : hour < 18 ? "Bon après-midi" : "Bonsoir";
+
     return (
         <div className="flex-1 overflow-x-hidden p-6 lg:p-10 scroll-smooth relative z-10 w-full mb-20 lg:mb-0">
             {/* Header Section */}
@@ -62,14 +77,24 @@ export default async function PlannerPage() {
                 <div>
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 mb-4">
                         <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                        <span className="text-xs font-semibold text-blue-400 tracking-wider">VUE JOURNALIÈRE</span>
+                        <span className="text-xs font-semibold text-blue-400 tracking-wider">
+                            {format(new Date(), "EEEE d MMMM yyyy", { locale: fr }).toUpperCase()}
+                        </span>
                     </div>
                     <h2 className="text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight mb-2">
-                        Bonjour{dbUser?.name ? ` ${dbUser.name.split(' ')[0]}` : ''}, faites de la<br />
+                        {greeting}{dbUser?.name ? ` ${dbUser.name.split(' ')[0]}` : ''}, faites de la<br />
                         place pour vos idées.
                     </h2>
                     <p className="text-slate-400 text-lg">
-                        Vous avez <span className="text-white font-medium">{totalTasks} tâches</span> prévues aujourd'hui. Restez dans le flux.
+                        {totalTasks === 0 ? (
+                            <>Aucune tâche prévue aujourd'hui. <span className="text-white font-medium">Ajoutez-en une !</span></>
+                        ) : (
+                            <>
+                                Vous avez <span className="text-white font-medium">{inProgress} tâche{inProgress > 1 ? 's' : ''}</span> en cours
+                                {completedTasks > 0 && <> et <span className="text-emerald-400 font-medium">{completedTasks} terminée{completedTasks > 1 ? 's' : ''}</span></>}.
+                                {' '}Restez dans le flux.
+                            </>
+                        )}
                     </p>
                 </div>
 
@@ -85,7 +110,7 @@ export default async function PlannerPage() {
                                 strokeWidth="3"
                             />
                             <path
-                                className="text-blue-500"
+                                className={progressPercentage === 100 ? "text-emerald-500" : "text-blue-500"}
                                 strokeDasharray={`${progressPercentage}, 100`}
                                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                                 fill="none"
@@ -111,36 +136,22 @@ export default async function PlannerPage() {
                     <div className="flex items-center justify-between px-1 mb-6">
                         <h3 className="text-xl font-bold text-white flex items-center gap-2">
                             <span>🌅</span> Matin
+                            <span className="text-xs font-normal text-slate-500 ml-1">({matinTasks.length})</span>
                         </h3>
                         <span className="text-xs font-medium text-slate-500 bg-white/5 px-3 py-1 rounded-full border border-white/5">08:00 - 12:00</span>
                     </div>
 
-                    {/* Map real tasks */}
                     {matinTasks.map((task: any) => (
                         <TaskItem key={task.id} task={task} creator={creatorInfo} projects={projectsList} />
                     ))}
 
-                    {/* Static visual representation of the complex card from the design */}
-                    <div className="glass-card p-5 rounded-3xl relative overflow-hidden border-blue-500/30 group">
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500"></div>
-                        <div className="flex justify-between items-start mb-4">
-                            <span className="text-[10px] font-bold text-blue-300 bg-blue-500/20 px-2 py-1 rounded-full border border-blue-500/20">Focus Profond</span>
-                            <button className="text-slate-500 hover:text-white"><MoreHorizontal className="w-4 h-4" /></button>
+                    {matinTasks.length === 0 && (
+                        <div className="glass-card rounded-3xl p-8 text-center border-dashed border border-white/5">
+                            <p className="text-sm text-slate-500">Aucune tâche ce matin</p>
                         </div>
-                        <h4 className="text-lg font-bold text-white mb-2">Revue de projet Q3</h4>
-                        <p className="text-sm text-slate-400 leading-relaxed mb-6">
-                            Analyser les métriques de performance et préparer la présentation pour l'équipe exécutive.
-                        </p>
-                        <div className="flex justify-between items-end">
-                            <div className="flex -space-x-2">
-                                <img src="https://i.pravatar.cc/100?img=33" className="w-7 h-7 rounded-full border-2 border-[#1e293b]" alt="Avatar" />
-                                <img src="https://i.pravatar.cc/100?img=47" className="w-7 h-7 rounded-full border-2 border-[#1e293b]" alt="Avatar" />
-                            </div>
-                            <button className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center border border-white/10 text-slate-400 transition-colors">
-                                <CheckCircle className="w-4 h-4" />
-                            </button>
-                        </div>
-                    </div>
+                    )}
+
+                    <CreateTaskModal userId={user.id} projects={projectsList} />
                 </div>
 
                 {/* Column 2: Après-midi */}
@@ -148,33 +159,22 @@ export default async function PlannerPage() {
                     <div className="flex items-center justify-between px-1 mb-6">
                         <h3 className="text-xl font-bold text-white flex items-center gap-2">
                             <span>☀️</span> Après-midi
+                            <span className="text-xs font-normal text-slate-500 ml-1">({apresMidiTasks.length})</span>
                         </h3>
                         <span className="text-xs font-medium text-slate-500 bg-white/5 px-3 py-1 rounded-full border border-white/5">12:00 - 18:00</span>
                     </div>
 
-                    {/* Image Banner Card */}
-                    <div className="glass-card rounded-3xl overflow-hidden group">
-                        <div className="h-32 bg-cover bg-center relative" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2070&auto=format&fit=crop')" }}>
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#151f2b] to-transparent"></div>
-                            <span className="absolute top-4 right-4 text-[10px] font-bold text-slate-300 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full">14:00 - 15:30</span>
-                        </div>
-                        <div className="p-5 pt-0">
-                            <span className="text-[10px] font-bold text-emerald-300 bg-emerald-500/20 px-2 py-1 rounded-full border border-emerald-500/20 inline-block mb-3">Réunion Client</span>
-                            <h4 className="text-lg font-bold text-white mb-2">Session de brainstorming équipe</h4>
-                            <p className="text-sm text-slate-400 leading-relaxed mb-6">
-                                Salle de conférence B ou lien Zoom.
-                            </p>
-                            <div className="grid grid-cols-2 gap-3">
-                                <button className="py-2.5 bg-white/10 hover:bg-white/15 text-white text-sm font-medium rounded-xl transition-colors">Rejoindre</button>
-                                <button className="py-2.5 bg-transparent border border-white/10 hover:bg-white/5 text-white text-sm font-medium rounded-xl transition-colors">Reporter</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Map real tasks */}
                     {apresMidiTasks.map((task: any) => (
                         <TaskItem key={task.id} task={task} creator={creatorInfo} projects={projectsList} />
                     ))}
+
+                    {apresMidiTasks.length === 0 && (
+                        <div className="glass-card rounded-3xl p-8 text-center border-dashed border border-white/5">
+                            <p className="text-sm text-slate-500">Aucune tâche cet après-midi</p>
+                        </div>
+                    )}
+
+                    <CreateTaskModal userId={user.id} projects={projectsList} />
                 </div>
 
                 {/* Column 3: Soirée */}
@@ -182,36 +182,51 @@ export default async function PlannerPage() {
                     <div className="flex items-center justify-between px-1 mb-6">
                         <h3 className="text-xl font-bold text-white flex items-center gap-2">
                             <span>🌙</span> Soirée
+                            <span className="text-xs font-normal text-slate-500 ml-1">({soireeTasks.length})</span>
                         </h3>
                         <span className="text-xs font-medium text-slate-500 bg-white/5 px-3 py-1 rounded-full border border-white/5">18:00 - ...</span>
                     </div>
 
-                    <CreateTaskModal userId={user.id} projects={projectsList} />
-
-                    {/* Map real tasks */}
                     {soireeTasks.map((task: any) => (
                         <TaskItem key={task.id} task={task} creator={creatorInfo} projects={projectsList} />
                     ))}
 
-                    {/* Intelligent Suggestion (Absolute at bottom maybe, or just in flow) */}
-                    <div className="mt-8 glass-card rounded-[2rem] p-5 border-orange-500/20 bg-gradient-to-b from-white/5 to-transparent">
-                        <div className="flex items-center justify-between mb-4 text-xs font-semibold text-slate-400">
-                            <span className="bg-white/5 px-3 py-1 rounded-full">Suggestion intelligente</span>
+                    {soireeTasks.length === 0 && (
+                        <div className="glass-card rounded-3xl p-8 text-center border-dashed border border-white/5">
+                            <p className="text-sm text-slate-500">Aucune tâche ce soir</p>
                         </div>
-                        <div className="flex gap-4 mb-5">
-                            <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center shrink-0 border border-orange-500/20">
-                                💡
+                    )}
+
+                    <CreateTaskModal userId={user.id} projects={projectsList} />
+
+                    {/* Dynamic Suggestions: yesterday's incomplete tasks */}
+                    {yesterdayIncompleteTasks.length > 0 && (
+                        <div className="mt-4 glass-card rounded-[2rem] p-5 border-orange-500/20 bg-gradient-to-b from-white/5 to-transparent">
+                            <div className="flex items-center justify-between mb-4 text-xs font-semibold text-slate-400">
+                                <span className="bg-white/5 px-3 py-1 rounded-full">
+                                    📋 {yesterdayIncompleteTasks.length} tâche{yesterdayIncompleteTasks.length > 1 ? 's' : ''} d'hier non terminée{yesterdayIncompleteTasks.length > 1 ? 's' : ''}
+                                </span>
                             </div>
-                            <div>
-                                <h4 className="text-white font-bold text-sm mb-1">Revue de design</h4>
-                                <p className="text-slate-400 text-xs">Vous n'avez pas terminé ceci hier.</p>
+                            <div className="space-y-3">
+                                {yesterdayIncompleteTasks.slice(0, 3).map((t: any) => (
+                                    <div key={t.id} className="flex gap-3 items-center">
+                                        <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center shrink-0 border border-orange-500/20">
+                                            💡
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="text-white font-semibold text-sm truncate">{t.text}</h4>
+                                            <p className="text-slate-500 text-xs">Non terminée hier</p>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
+                            {yesterdayIncompleteTasks.length > 3 && (
+                                <p className="text-xs text-slate-500 mt-3 text-center">
+                                    + {yesterdayIncompleteTasks.length - 3} autre{yesterdayIncompleteTasks.length - 3 > 1 ? 's' : ''}
+                                </p>
+                            )}
                         </div>
-                        <div className="flex gap-2">
-                            <button className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded-xl transition-colors">Garder ça</button>
-                            <button className="flex-1 py-2 bg-white/5 hover:bg-white/10 text-white text-xs font-semibold rounded-xl transition-colors border border-white/5">Passer à demain</button>
-                        </div>
-                    </div>
+                    )}
                 </div>
 
             </div>
