@@ -49,6 +49,12 @@ export default async function PlannerPage() {
     const apresMidiTasks = tasksList.filter((t: any) => t.timeSlot === "afternoon");
     const soireeTasks = tasksList.filter((t: any) => t.timeSlot === "evening");
 
+    // Build creator info for the task cards
+    const creatorInfo = {
+        name: dbUser?.name || user.email || null,
+        avatarUrl: (dbUser?.avatarUrl || user.user_metadata?.avatar_url || null) as string | null,
+    };
+
     return (
         <div className="flex-1 overflow-x-hidden p-6 lg:p-10 scroll-smooth relative z-10 w-full mb-20 lg:mb-0">
             {/* Header Section */}
@@ -111,7 +117,7 @@ export default async function PlannerPage() {
 
                     {/* Map real tasks */}
                     {matinTasks.map((task: any) => (
-                        <TaskItem key={task.id} task={task} />
+                        <TaskItem key={task.id} task={task} creator={creatorInfo} />
                     ))}
 
                     {/* Static visual representation of the complex card from the design */}
@@ -167,7 +173,7 @@ export default async function PlannerPage() {
 
                     {/* Map real tasks */}
                     {apresMidiTasks.map((task: any) => (
-                        <TaskItem key={task.id} task={task} />
+                        <TaskItem key={task.id} task={task} creator={creatorInfo} />
                     ))}
                 </div>
 
@@ -184,7 +190,7 @@ export default async function PlannerPage() {
 
                     {/* Map real tasks */}
                     {soireeTasks.map((task: any) => (
-                        <TaskItem key={task.id} task={task} />
+                        <TaskItem key={task.id} task={task} creator={creatorInfo} />
                     ))}
 
                     {/* Intelligent Suggestion (Absolute at bottom maybe, or just in flow) */}

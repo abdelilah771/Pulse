@@ -18,7 +18,18 @@ const accentColors: Record<string, string> = {
     low: "bg-slate-500",
 };
 
-export default function TaskItem({ task }: { task: any }) {
+interface TaskUser {
+    name: string | null;
+    avatarUrl: string | null;
+}
+
+interface TaskItemProps {
+    task: any;
+    creator?: TaskUser;
+    assignees?: TaskUser[];
+}
+
+export default function TaskItem({ task, creator, assignees = [] }: TaskItemProps) {
     const [isDone, setIsDone] = useState(task.done);
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
@@ -40,6 +51,23 @@ export default function TaskItem({ task }: { task: any }) {
 
     const priority = priorityConfig[task.priority] || priorityConfig.medium;
     const accent = accentColors[task.priority] || accentColors.medium;
+
+    // Build list of all people to show (creator first, then assignees)
+    const allPeople: TaskUser[] = [];
+    if (creator) allPeople.push(creator);
+    assignees.forEach(a => {
+        // Avoid duplicating creator in assignees
+        if (creator && a.name === creator.name) return;
+        allPeople.push(a);
+    });
+
+    const getInitials = (name: string | null) => {
+        if (!name) return "?";
+        return name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+    };
+
+    // Color palette for fallback avatars
+    const avatarColors = ["bg-indigo-500", "bg-rose-500", "bg-amber-500", "bg-teal-500", "bg-violet-500"];
 
     return (
         <div className={`glass-card p-5 rounded-3xl relative overflow-hidden group transition-all ${isDone ? "opacity-50" : ""} ${priority.border}`}>
@@ -72,9 +100,31 @@ export default function TaskItem({ task }: { task: any }) {
             {/* Footer: avatars + check button */}
             <div className="flex justify-between items-end">
                 <div className="flex -space-x-2">
-                    <div className="w-7 h-7 rounded-full border-2 border-[#1e293b] bg-indigo-500 flex items-center justify-center text-[10px] font-bold text-white">
-                        {task.type?.charAt(0)?.toUpperCase() || "T"}
-                    </div>
+                    {allPeople.length > 0 ? (
+                        allPeople.map((person, i) => (
+                            person.avatarUrl ? (
+                                <img
+                                    key={i}
+                                    src={person.avatarUrl}
+                                    alt={person.name || "Utilisateur"}
+                                    title={person.name || "Utilisateur"}
+                                    className="w-7 h-7 rounded-full border-2 border-[#1e293b] object-cover"
+                                />
+                            ) : (
+                                <div
+                                    key={i}
+                                    title={person.name || "Utilisateur"}
+                                    className={`w-7 h-7 rounded-full border-2 border-[#1e293b] flex items-center justify-center text-[10px] font-bold text-white ${avatarColors[i % avatarColors.length]}`}
+                                >
+                                    {getInitials(person.name)}
+                                </div>
+                            )
+                        ))
+                    ) : (
+                        <div className={`w-7 h-7 rounded-full border-2 border-[#1e293b] flex items-center justify-center text-[10px] font-bold text-white bg-indigo-500`}>
+                            {task.type?.charAt(0)?.toUpperCase() || "T"}
+                        </div>
+                    )}
                 </div>
                 <button
                     onClick={handleToggle}

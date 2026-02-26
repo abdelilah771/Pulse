@@ -4,6 +4,7 @@ export const users = pgTable("users", {
     id: uuid("id").primaryKey(), // We will use Supabase Auth UUID here
     name: text("name"),
     email: text("email").notNull().unique(),
+    avatarUrl: text("avatar_url"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -60,4 +61,14 @@ export const notes = pgTable("notes", {
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [
     index("note_user_date_idx").on(table.userId, table.dateStr),
+]);
+
+export const taskAssignees = pgTable("task_assignees", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    taskId: uuid("task_id").notNull().references(() => tasks.id, { onDelete: 'cascade' }),
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+    uniqueIndex("task_assignee_unique_idx").on(table.taskId, table.userId),
+    index("task_assignee_task_idx").on(table.taskId),
 ]);
