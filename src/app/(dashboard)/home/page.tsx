@@ -159,11 +159,26 @@ export default async function HomePage() {
                         <div className="glass-card rounded-2xl p-1 overflow-hidden">
                             <div className="bg-slate-50 dark:bg-[#192633]/50 rounded-xl flex flex-col md:flex-row overflow-hidden relative">
                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-primary/5 pointer-events-none"></div>
-                                {/* Gradient visual based on project color */}
-                                <div className={`w-full md:w-1/3 h-40 md:h-auto bg-gradient-to-br ${gradient} relative flex items-center justify-center`}>
-                                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.2),transparent_70%)]"></div>
+                                {/* Image + Gradient overlay based on project color */}
+                                <div
+                                    className="w-full md:w-1/3 h-48 md:h-auto bg-cover bg-center relative"
+                                    style={{
+                                        backgroundImage: (() => {
+                                            const imageMap: Record<string, string> = {
+                                                emerald: 'url("https://images.unsplash.com/photo-1542281286-9e0a16bb7366?q=80&w=2564&auto=format&fit=crop")',
+                                                blue: 'url("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop")',
+                                                purple: 'url("https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=2564&auto=format&fit=crop")',
+                                                orange: 'url("https://images.unsplash.com/photo-1557672172-298e090bd0f1?q=80&w=2564&auto=format&fit=crop")',
+                                                rose: 'url("https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2564&auto=format&fit=crop")',
+                                            };
+                                            return imageMap[latestProject.color] || imageMap.blue;
+                                        })()
+                                    }}
+                                >
+                                    <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-60 mix-blend-multiply`}></div>
+                                    <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black/80 via-black/30 to-transparent"></div>
                                     <div className="absolute bottom-4 left-4">
-                                        <span className="bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full border border-white/20">
+                                        <span className="bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
                                             Projet Actif
                                         </span>
                                     </div>
