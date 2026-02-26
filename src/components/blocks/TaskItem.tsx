@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition, useRef, useEffect } from "react";
-import { CheckCircle, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { CheckCircle, MoreHorizontal, Pencil, Trash2, Sunrise, Sun, Moon } from "lucide-react";
 import { toggleTaskDone, updateTask, deleteTaskById } from "@/actions/tasks.actions";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -132,23 +132,23 @@ export default function TaskItem({ task, creator, assignees = [], projects = [] 
                     <div className="relative" ref={menuRef}>
                         <button
                             onClick={() => setShowMenu(!showMenu)}
-                            className="text-slate-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-white/10"
+                            className="text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"
                         >
                             <MoreHorizontal className="w-4 h-4" />
                         </button>
 
                         {showMenu && (
-                            <div className="absolute right-0 top-8 z-50 w-40 bg-[#1a2332] border border-white/10 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                            <div className="absolute right-0 top-8 z-50 w-40 bg-white dark:bg-[#1a2332] border border-black/10 dark:border-white/10 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                                 <button
                                     onClick={() => { setShowMenu(false); setEditOpen(true); }}
-                                    className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
+                                    className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                                 >
                                     <Pencil className="w-3.5 h-3.5" />
                                     Modifier
                                 </button>
                                 <button
                                     onClick={handleDelete}
-                                    className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors border-t border-white/5"
+                                    className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-500/10 transition-colors border-t border-black/5 dark:border-white/5"
                                 >
                                     <Trash2 className="w-3.5 h-3.5" />
                                     Supprimer
@@ -159,13 +159,13 @@ export default function TaskItem({ task, creator, assignees = [], projects = [] 
                 </div>
 
                 {/* Title */}
-                <h4 className={`text-lg font-bold mb-1 transition-colors ${isDone ? "line-through text-slate-500" : "text-white"}`}>
+                <h4 className={`text-lg font-bold mb-1 transition-colors ${isDone ? "line-through text-slate-400 dark:text-slate-500" : "text-slate-900 dark:text-white"}`}>
                     {task.text}
                 </h4>
 
                 {/* Description */}
                 {task.description && (
-                    <p className="text-sm text-slate-400 leading-relaxed mb-4">
+                    <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
                         {task.description}
                     </p>
                 )}
@@ -182,20 +182,20 @@ export default function TaskItem({ task, creator, assignees = [], projects = [] 
                                         src={person.avatarUrl}
                                         alt={person.name || "Utilisateur"}
                                         title={person.name || "Utilisateur"}
-                                        className="w-7 h-7 rounded-full border-2 border-[#1e293b] object-cover"
+                                        className="w-7 h-7 rounded-full border-2 border-white dark:border-[#1e293b] object-cover"
                                     />
                                 ) : (
                                     <div
                                         key={i}
                                         title={person.name || "Utilisateur"}
-                                        className={`w-7 h-7 rounded-full border-2 border-[#1e293b] flex items-center justify-center text-[10px] font-bold text-white ${avatarColors[i % avatarColors.length]}`}
+                                        className={`w-7 h-7 rounded-full border-2 border-white dark:border-[#1e293b] flex items-center justify-center text-[10px] font-bold text-white ${avatarColors[i % avatarColors.length]}`}
                                     >
                                         {getInitials(person.name)}
                                     </div>
                                 )
                             ))
                         ) : (
-                            <div className="w-7 h-7 rounded-full border-2 border-[#1e293b] flex items-center justify-center text-[10px] font-bold text-white bg-indigo-500">
+                            <div className="w-7 h-7 rounded-full border-2 border-white dark:border-[#1e293b] flex items-center justify-center text-[10px] font-bold text-white bg-indigo-500">
                                 {task.type?.charAt(0)?.toUpperCase() || "T"}
                             </div>
                         )}
@@ -206,7 +206,7 @@ export default function TaskItem({ task, creator, assignees = [], projects = [] 
                         className={`w-8 h-8 rounded-full flex items-center justify-center border transition-all
                             ${isDone
                                 ? "bg-primary border-primary text-white shadow-lg shadow-primary/30"
-                                : "bg-white/5 hover:bg-white/10 border-white/10 text-slate-400 hover:text-white"
+                                : "bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border-black/10 dark:border-white/10 text-slate-400 hover:text-slate-900 dark:hover:text-white"
                             }
                             disabled:opacity-50`}
                     >
@@ -219,11 +219,11 @@ export default function TaskItem({ task, creator, assignees = [], projects = [] 
             <Sheet open={editOpen} onOpenChange={setEditOpen}>
                 <SheetContent
                     side="right"
-                    className="!w-full sm:!max-w-md border-l border-white/10 bg-[#101922]/95 backdrop-blur-2xl text-white overflow-y-auto"
+                    className="!w-full sm:!max-w-md border-l border-black/10 dark:border-white/10 bg-white/95 dark:bg-[#101922]/95 backdrop-blur-2xl text-slate-900 dark:text-white overflow-y-auto"
                 >
                     <SheetHeader className="mb-6">
-                        <SheetTitle className="text-xl font-bold text-white">Modifier la tâche</SheetTitle>
-                        <SheetDescription className="text-slate-400 text-sm">
+                        <SheetTitle className="text-xl font-bold text-slate-900 dark:text-white">Modifier la tâche</SheetTitle>
+                        <SheetDescription className="text-slate-500 dark:text-slate-400 text-sm">
                             Modifiez les détails ci-dessous et sauvegardez.
                         </SheetDescription>
                     </SheetHeader>
@@ -235,51 +235,51 @@ export default function TaskItem({ task, creator, assignees = [], projects = [] 
 
                         {/* Task Title */}
                         <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-1.5">Titre de la tâche *</label>
+                            <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5">Titre de la tâche *</label>
                             <input
                                 name="text"
                                 required
                                 type="text"
                                 defaultValue={task.text}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                             />
                         </div>
 
                         {/* Description */}
                         <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-1.5">Description</label>
+                            <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5">Description</label>
                             <textarea
                                 name="description"
                                 rows={3}
                                 defaultValue={task.description || ""}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
+                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
                                 placeholder="Détails de la tâche..."
                             />
                         </div>
 
                         {/* Time Slot */}
                         <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-2">Créneau horaire *</label>
+                            <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Créneau horaire *</label>
                             <div className="grid grid-cols-3 gap-3">
                                 <label className="cursor-pointer">
                                     <input type="radio" name="timeSlot" value="morning" defaultChecked={task.timeSlot === "morning"} className="peer hidden" />
-                                    <div className="text-center py-3.5 rounded-xl border border-white/10 bg-white/5 peer-checked:border-amber-400 peer-checked:bg-amber-500/10 transition-all hover:bg-white/10">
-                                        <span className="text-xl block">🌅</span>
-                                        <p className="text-xs font-medium text-slate-400 mt-1.5">Matin</p>
+                                    <div className="text-center py-3.5 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 peer-checked:border-amber-400 peer-checked:bg-amber-500/10 transition-all hover:bg-black/10 dark:hover:bg-white/10">
+                                        <Sunrise className="w-5 h-5 text-amber-500 mx-auto" />
+                                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1.5">Matin</p>
                                     </div>
                                 </label>
                                 <label className="cursor-pointer">
                                     <input type="radio" name="timeSlot" value="afternoon" defaultChecked={task.timeSlot === "afternoon"} className="peer hidden" />
-                                    <div className="text-center py-3.5 rounded-xl border border-white/10 bg-white/5 peer-checked:border-orange-400 peer-checked:bg-orange-500/10 transition-all hover:bg-white/10">
-                                        <span className="text-xl block">☀️</span>
-                                        <p className="text-xs font-medium text-slate-400 mt-1.5">Après-midi</p>
+                                    <div className="text-center py-3.5 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 peer-checked:border-orange-400 peer-checked:bg-orange-500/10 transition-all hover:bg-black/10 dark:hover:bg-white/10">
+                                        <Sun className="w-5 h-5 text-orange-500 mx-auto" />
+                                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1.5">Après-midi</p>
                                     </div>
                                 </label>
                                 <label className="cursor-pointer">
                                     <input type="radio" name="timeSlot" value="evening" defaultChecked={task.timeSlot === "evening"} className="peer hidden" />
-                                    <div className="text-center py-3.5 rounded-xl border border-white/10 bg-white/5 peer-checked:border-indigo-400 peer-checked:bg-indigo-500/10 transition-all hover:bg-white/10">
-                                        <span className="text-xl block">🌙</span>
-                                        <p className="text-xs font-medium text-slate-400 mt-1.5">Soirée</p>
+                                    <div className="text-center py-3.5 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 peer-checked:border-indigo-400 peer-checked:bg-indigo-500/10 transition-all hover:bg-black/10 dark:hover:bg-white/10">
+                                        <Moon className="w-5 h-5 text-indigo-500 mx-auto" />
+                                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1.5">Soirée</p>
                                     </div>
                                 </label>
                             </div>
@@ -288,25 +288,25 @@ export default function TaskItem({ task, creator, assignees = [], projects = [] 
                         {/* Date + Priority */}
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-slate-300 mb-1.5">Date *</label>
+                                <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5">Date *</label>
                                 <input
                                     name="dateStr"
                                     required
                                     type="date"
                                     defaultValue={task.dateStr}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all [color-scheme:dark]"
+                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all dark:[color-scheme:dark]"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-300 mb-1.5">Priorité</label>
+                                <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5">Priorité</label>
                                 <select
                                     name="priority"
                                     defaultValue={task.priority}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none"
+                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none"
                                 >
-                                    <option value="low">🟢 Basse</option>
-                                    <option value="medium">🟡 Moyenne</option>
-                                    <option value="high">🔴 Haute</option>
+                                    <option value="low">Basse</option>
+                                    <option value="medium">Moyenne</option>
+                                    <option value="high">Haute</option>
                                 </select>
                             </div>
                         </div>
@@ -314,11 +314,11 @@ export default function TaskItem({ task, creator, assignees = [], projects = [] 
                         {/* Project */}
                         {projects.length > 0 && (
                             <div>
-                                <label className="block text-sm font-medium text-slate-300 mb-1.5">Projet</label>
+                                <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1.5">Projet</label>
                                 <select
                                     name="projectId"
                                     defaultValue={task.projectId || ""}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none"
+                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none"
                                 >
                                     <option value="">-- Aucun projet --</option>
                                     {projects.map((p: any) => (
@@ -329,11 +329,11 @@ export default function TaskItem({ task, creator, assignees = [], projects = [] 
                         )}
 
                         {/* Actions */}
-                        <div className="pt-6 flex items-center gap-3 border-t border-white/5">
+                        <div className="pt-6 flex items-center gap-3 border-t border-black/5 dark:border-white/5">
                             <button
                                 type="button"
                                 onClick={() => setEditOpen(false)}
-                                className="flex-1 py-2.5 text-sm font-medium text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors border border-white/5"
+                                className="flex-1 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 rounded-xl transition-colors border border-black/5 dark:border-white/5"
                                 disabled={editPending}
                             >
                                 Annuler
@@ -343,7 +343,7 @@ export default function TaskItem({ task, creator, assignees = [], projects = [] 
                                 className="flex-1 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary/90 rounded-xl shadow-lg shadow-primary/20 transition-all disabled:opacity-50"
                                 disabled={editPending}
                             >
-                                {editPending ? "Sauvegarde..." : "💾 Sauvegarder"}
+                                {editPending ? "Sauvegarde..." : "Sauvegarder"}
                             </button>
                         </div>
                     </form>
