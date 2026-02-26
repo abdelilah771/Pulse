@@ -12,18 +12,7 @@ import {
     SheetTitle,
     SheetDescription,
 } from "@/components/ui/sheet";
-
-const priorityConfig: Record<string, { label: string; color: string; border: string }> = {
-    high: { label: "Focus Profond", color: "text-blue-600 dark:text-blue-300 bg-blue-500/15 dark:bg-blue-500/20 border-blue-500/30 dark:border-blue-500/20", border: "border-blue-500/20 dark:border-blue-500/30" },
-    medium: { label: "Standard", color: "text-emerald-600 dark:text-emerald-300 bg-emerald-500/15 dark:bg-emerald-500/20 border-emerald-500/30 dark:border-emerald-500/20", border: "border-emerald-500/20 dark:border-emerald-500/30" },
-    low: { label: "Optionnel", color: "text-slate-600 dark:text-slate-300 bg-slate-500/10 dark:bg-white/10 border-slate-500/20 dark:border-white/10", border: "border-slate-300 dark:border-white/10" },
-};
-
-const accentColors: Record<string, string> = {
-    high: "bg-blue-500",
-    medium: "bg-emerald-500",
-    low: "bg-slate-500",
-};
+import { getInitials, getPriority, getAccentColor } from "@/lib/task-utils";
 
 interface TaskUser {
     name: string | null;
@@ -98,8 +87,8 @@ export default function TaskItem({ task, creator, assignees = [], projects = [] 
         }
     };
 
-    const priority = priorityConfig[task.priority] || priorityConfig.medium;
-    const accent = accentColors[task.priority] || accentColors.medium;
+    const priority = getPriority(task.priority);
+    const accent = getAccentColor(task.priority);
 
     // Build list of all people to show
     const allPeople: TaskUser[] = [];
@@ -108,11 +97,6 @@ export default function TaskItem({ task, creator, assignees = [], projects = [] 
         if (creator && a.name === creator.name) return;
         allPeople.push(a);
     });
-
-    const getInitials = (name: string | null) => {
-        if (!name) return "?";
-        return name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
-    };
 
     const avatarColors = ["bg-indigo-500", "bg-rose-500", "bg-amber-500", "bg-teal-500", "bg-violet-500"];
 

@@ -2,6 +2,7 @@
 import { db } from "@/db";
 import { notes } from "@/db/schema";
 import { revalidatePath } from "next/cache";
+import { extractTitle } from "@/lib/utils";
 
 export async function createNote(formData: FormData) {
     const content = formData.get("content") as string;
@@ -13,7 +14,7 @@ export async function createNote(formData: FormData) {
     }
 
     // Default title from content, tag could be extracted or passed if needed
-    const title = content.split('\n')[0].substring(0, 30);
+    const title = extractTitle(content);
 
     try {
         await db.insert(notes).values({

@@ -8,8 +8,9 @@ import { fr } from "date-fns/locale";
 import { Filter, Plus, CheckCircle, LayoutDashboard, Clock, CalendarDays } from "lucide-react";
 import { createNote } from "@/actions/notes.actions";
 import TaskItem from "@/components/blocks/TaskItem";
-import CreateProjectModal from "@/components/blocks/CreateProjectModal";
+import ProjectSheet from "@/components/blocks/ProjectSheet";
 import CreateTaskModal from "@/components/blocks/CreateTaskModal";
+import { getProjectColorStyle, getProjectGradient, getProjectImage, calculateStats } from "@/lib/project-utils";
 
 export default async function HomePage() {
     const supabase = await createClient();
@@ -39,9 +40,7 @@ export default async function HomePage() {
     const dbUserResult = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
     const dbUser = dbUserResult[0] || null;
 
-    const totalTasks = tasksList.length;
-    const completedTasks = tasksList.filter(t => t.done).length;
-    const inProgress = totalTasks - completedTasks;
+    const { totalTasks, completedTasks, inProgress } = calculateStats(tasksList);
 
     const creatorInfo = {
         name: dbUser?.name || user.email || null,
@@ -69,27 +68,22 @@ export default async function HomePage() {
                             <LayoutDashboard className="w-4 h-4" />
                             Ouvrir le Planner
                         </a>
-                        <CreateProjectModal userId={user.id} />
+                        <ProjectSheet userId={user.id} mode="create" />
                     </div>
                 </div>
 
                 <div className="mb-8 overflow-x-auto pb-4 custom-scrollbar">
                     <div className="flex gap-4 min-w-max">
                         {projectsList.map((project) => {
-                            const colorClassStyles: Record<string, string> = {
-                                emerald: "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.7)]",
-                                blue: "bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.7)]",
-                                purple: "bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.7)]",
-                                orange: "bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.7)]",
-                                rose: "bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.7)]",
-                            };
-                            const badgeClass = colorClassStyles[project.color] || colorClassStyles.emerald;
+                            const badgeClass = getProjectColorStyle(project.color);
 
                             return (
-                                <div key={project.id} className="glass-card pl-3 pr-5 py-2.5 rounded-full flex items-center gap-3 border border-black/5 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer group">
-                                    <div className={`w-3 h-3 rounded-full ${badgeClass}`}></div>
-                                    <span className="text-sm font-medium text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{project.name}</span>
-                                </div>
+                                <ProjectSheet key={project.id} userId={user.id} mode="edit" project={project}>
+                                    <div className="glass-card pl-3 pr-5 py-2.5 rounded-full flex items-center gap-3 border border-black/5 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer group">
+                                        <div className={`w-3 h-3 rounded-full ${badgeClass}`}></div>
+                                        <span className="text-sm font-medium text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{project.name}</span>
+                                    </div>
+                                </ProjectSheet>
                             );
                         })}
                     </div>
@@ -146,14 +140,7 @@ export default async function HomePage() {
                 {/* Active Project Banner */}
                 {projectsList.length > 0 ? (() => {
                     const latestProject = projectsList[projectsList.length - 1];
-                    const gradientMap: Record<string, string> = {
-                        emerald: "from-emerald-600 via-emerald-500 to-teal-400",
-                        blue: "from-blue-600 via-blue-500 to-cyan-400",
-                        purple: "from-purple-600 via-violet-500 to-fuchsia-400",
-                        orange: "from-orange-600 via-orange-500 to-amber-400",
-                        rose: "from-rose-600 via-pink-500 to-rose-400",
-                    };
-                    const gradient = gradientMap[latestProject.color] || gradientMap.blue;
+                    const gradient = getProjectGradient(latestProject.color);
 
                     return (
                         <div className="glass-card rounded-2xl p-1 overflow-hidden">
@@ -163,16 +150,7 @@ export default async function HomePage() {
                                 <div
                                     className="w-full md:w-1/3 h-48 md:h-auto bg-cover bg-center relative"
                                     style={{
-                                        backgroundImage: (() => {
-                                            const imageMap: Record<string, string> = {
-                                                emerald: 'url("https://images.unsplash.com/photo-1542281286-9e0a16bb7366?q=80&w=2564&auto=format&fit=crop")',
-                                                blue: 'url("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop")',
-                                                purple: 'url("https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=2564&auto=format&fit=crop")',
-                                                orange: 'url("https://images.unsplash.com/photo-1557672172-298e090bd0f1?q=80&w=2564&auto=format&fit=crop")',
-                                                rose: 'url("https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2564&auto=format&fit=crop")',
-                                            };
-                                            return imageMap[latestProject.color] || imageMap.blue;
-                                        })()
+                                        backgroundImage: getProjectImage(latestProject.color)
                                     }}
                                 >
                                     <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-60 mix-blend-multiply`}></div>

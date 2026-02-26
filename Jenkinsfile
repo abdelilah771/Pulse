@@ -55,6 +55,13 @@ pipeline {
             }
         }
 
+        stage('Test') {
+            steps {
+                // Run tests and collect coverage
+                sh 'npm run test:coverage'
+            }
+        }
+
         stage('Build') {
             steps {
                 // Compile the Next.js production bundle

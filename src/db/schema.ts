@@ -72,3 +72,14 @@ export const taskAssignees = pgTable("task_assignees", {
     uniqueIndex("task_assignee_unique_idx").on(table.taskId, table.userId),
     index("task_assignee_task_idx").on(table.taskId),
 ]);
+
+export const projectMembers = pgTable("project_members", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    projectId: uuid("project_id").notNull().references(() => projects.id, { onDelete: 'cascade' }),
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+    role: text("role").default("member").notNull(), // 'owner', 'member'
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+    uniqueIndex("project_member_unique_idx").on(table.projectId, table.userId),
+    index("project_member_user_idx").on(table.userId),
+]);
